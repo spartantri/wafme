@@ -29,7 +29,7 @@ def find_values(id, json_repr):
 def extractor(jsonlog):
     line=''
     for log in find_values('messages', jsonlog):
-        id=re.search('\[id "([^"]+)"]', log[0])
+        id=re.search('\[id "([^"]+)"\]', log[0])
         if id:
             line=''.join([line, str(id.group(1))])
         else:
