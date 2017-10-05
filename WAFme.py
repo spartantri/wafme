@@ -31,7 +31,7 @@ def extractor(jsonlog):
     for log in find_values('messages', jsonlog):
         id=re.search('\[id "([^"]+)"]', log[0])
         if id:
-            line=''.join([line, id])
+            line=''.join([line, str(id)])
         else:
             line=''.join([line, 'noid'])
         var=re.search('\[data "Matched Data:.*found within (\S+): ', log[0])
