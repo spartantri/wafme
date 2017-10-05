@@ -27,15 +27,30 @@ def find_values(id, json_repr):
 
 
 def extractor(jsonlog):
-    parsed=[]
+    line=''
     for log in find_values('messages', jsonlog):
+        id=re.search('\[id "([^"]+)"]', log[0])
+        if match:
+            line=''.join([line, id])
+        else:
+            line=''.join([line, 'noid'])
         var=re.search('\[data "Matched Data:.*found within (\S+): ', log[0])
-        id=re.search('\[id "[^"]+"]', log[0])
-        uri=re.search('^\w+ /\S+\?? HTTP/', find_values('request_line', jsonlog))
+        if match:
+            line=''.join([line, var.group(1)])
+        else:
+            line=''.join([line, log[0]])
+        try:
+            uri=re.search('^\w+ (\/\S+)\?? HTTP\/', find_values('request_line', jsonlog))
+            if match:
+                line=''.join([line, log[0]])
+            else:
+                line=''.join([line, find_values('request_line', jsonlog)])
+        except:
+            uri=find_values('request_line', jsonlog)
         txid=find_values('transaction_id', jsonlog)
-        parsed.append([id, var, uri, txid])
-        print id, var, uri, txid
+        print line
     return
+
 
 def main():
     soup = RuleEditor.get_ref_manual()
