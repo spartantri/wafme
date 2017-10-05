@@ -29,10 +29,10 @@ def find_values(id, json_repr):
 def extractor(jsonlog):
     line=''
     for log in find_values('messages', jsonlog):
-        uri=re.search('^\w+\s(\/[^\?\s]+)\??.*\sHTTP\/(?:(?:1|2)\.?(?:1|0)?)$', find_values('request_line', jsonlog))
+        uri=re.search('^\w+\s(\/[^\?\s]+)\??.*\sHTTP\/(?:(?:1|2)\.?(?:1|0)?)$', find_values('request_line', log[0]))
         for event in log:
             if uri:
-                line=' '.join([line, log[0]])
+                line=' '.join([line, uri.group(1)])
             else:
                 line=' '.join([line, find_values('request_line', log)])
             id=re.search('\[id "([^"]+)"\]', log[0])
