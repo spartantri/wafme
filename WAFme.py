@@ -36,18 +36,21 @@ def extractor(jsonlog):
             line=''.join([line, 'noid'])
         var=re.search('\[data "Matched Data:.*found within (\S+): ', log[0])
         if var:
-            line=''.join([line, var.group(1)])
+            line=' '.join([line, var.group(1)])
         else:
-            line=''.join([line, log[0]])
+            line=' '.join([line, log[0]])
         try:
             uri=re.search('^\w+ (\/\S+)\?? HTTP\/', find_values('request_line', jsonlog))
             if uri:
-                line=''.join([line, log[0]])
+                line=' '.join([line, log[0]])
             else:
-                line=''.join([line, find_values('request_line', jsonlog)])
+                line=' '.join([line, find_values('request_line', jsonlog)])
         except:
             uri=find_values('request_line', jsonlog)
+            if uri:
+                line=' '.join([line, uri])
         txid=find_values('transaction_id', jsonlog)
+        line=' '.join([line, txid]
         print line
         id=var=uri=None
     return
