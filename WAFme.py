@@ -52,7 +52,7 @@ def extractor(jsonlog):
         txid=find_values('transaction_id', jsonlog)
         line=' '.join([line, txid]
         print line
-        id=var=uri=None
+        id=var=uri=line=None
     return
 
 
