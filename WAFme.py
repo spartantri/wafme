@@ -44,3 +44,5 @@ def main():
     t.follow()
     
     
+if __name__ == '__main__':
+    main()
