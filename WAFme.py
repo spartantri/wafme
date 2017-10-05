@@ -28,11 +28,11 @@ def find_values(id, json_repr):
 
 def extractor(jsonlog):
     parsed=[]
-    for log in WAFme.find_values('messages', jsonlog):
+    for log in find_values('messages', jsonlog):
         var=re.search('\[data "Matched Data:.*found within (\S+): ', log[0])
         id=re.search('\[id "[^"]+"]', log[0])
-        uri=re.search('^\w+ /\S+\?? HTTP/', WAFme.find_values('request_line', jsonlog))
-        txid=WAFme.find_values('transaction_id', jsonlog)
+        uri=re.search('^\w+ /\S+\?? HTTP/', find_values('request_line', jsonlog))
+        txid=find_values('transaction_id', jsonlog)
         parsed.append([id, var, uri, txid])
         print id, var, uri, txid
     return
