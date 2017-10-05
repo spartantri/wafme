@@ -12,6 +12,7 @@
 # -------------------------------------------------------------------------------
 
 import json, re
+import RuleEditor, tail
 
 def find_values(id, json_repr):
     results = []
