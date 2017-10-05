@@ -29,26 +29,27 @@ def find_values(id, json_repr):
 def extractor(jsonlog):
     line=''
     for log in find_values('messages', jsonlog):
-        id=re.search('\[id "([^"]+)"\]', log[0])
-        if id:
-            line=''.join([line, str(id.group(1))])
-        else:
-            line=''.join([line, 'noid'])
-        var=re.search('\[data "Matched Data:.*found within (\S+): ', log[0])
-        if var:
-            line=' '.join([line, var.group(1)])
-        else:
-            line=' '.join([line, log[0]])
-        print type(log), log
-        uri=re.search('^\w+\s(\/[^\?\s]+)\??.*\sHTTP\/(?:(?:1|2)\.?(?:1|0)?)$', find_values('request_line', log))
-        if uri:
-            line=' '.join([line, log[0]])
-        else:
-            line=' '.join([line, find_values('request_line', log)])
-        txid=find_values('transaction_id', log[0])
-        line=' '.join([line, txid[0]])
-        print line
-        id=var=uri=line=None
+        uri=re.search('^\w+\s(\/[^\?\s]+)\??.*\sHTTP\/(?:(?:1|2)\.?(?:1|0)?)$', find_values('request_line', jsonlog))
+        for event in log:
+            if uri:
+                line=' '.join([line, log[0]])
+            else:
+                line=' '.join([line, find_values('request_line', log)])
+            id=re.search('\[id "([^"]+)"\]', log[0])
+            if id:
+                line=''.join([line, str(id.group(1))])
+            else:
+                line=''.join([line, 'noid'])
+            var=re.search('\[data "Matched Data:.*found within (\S+): ', log[0])
+            if var:
+                line=' '.join([line, var.group(1)])
+            else:
+                line=' '.join([line, log[0]])
+            txid=find_values('transaction_id', log[0])
+            line=' '.join([line, txid[0]])
+            print line
+            id=var=line=None
+        uri=None
     return
 
 
