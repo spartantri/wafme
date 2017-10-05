@@ -29,6 +29,7 @@ def find_values(id, json_repr):
 def extractor(jsonlog):
     line=''
     uri=re.search('^\w+\s(\/[^\?\s]+)\??.*\sHTTP\/(?:(?:1|2)\.?(?:1|0)?)$', find_values('request_line', jsonlog)[0])
+    txid=find_values('transaction_id', jsonlog)[0]
     for log in find_values('messages', jsonlog):
         for event in log:
             if uri:
@@ -45,8 +46,7 @@ def extractor(jsonlog):
                 line=' '.join([line, var.group(1)])
             else:
                 line=' '.join([line, log[0]])
-            txid=find_values('transaction_id', log[0])
-            line=' '.join([line, txid[0]])
+            line=' '.join([line, txid])
             print line
             id=var=line=None
         uri=None
