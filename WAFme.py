@@ -30,18 +30,18 @@ def extractor(jsonlog):
     line=''
     for log in find_values('messages', jsonlog):
         id=re.search('\[id "([^"]+)"]', log[0])
-        if match:
+        if id:
             line=''.join([line, id])
         else:
             line=''.join([line, 'noid'])
         var=re.search('\[data "Matched Data:.*found within (\S+): ', log[0])
-        if match:
+        if var:
             line=''.join([line, var.group(1)])
         else:
             line=''.join([line, log[0]])
         try:
             uri=re.search('^\w+ (\/\S+)\?? HTTP\/', find_values('request_line', jsonlog))
-            if match:
+            if uri:
                 line=''.join([line, log[0]])
             else:
                 line=''.join([line, find_values('request_line', jsonlog)])
@@ -49,6 +49,7 @@ def extractor(jsonlog):
             uri=find_values('request_line', jsonlog)
         txid=find_values('transaction_id', jsonlog)
         print line
+        id=var=uri=None
     return
 
 
