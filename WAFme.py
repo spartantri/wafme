@@ -39,7 +39,7 @@ def extractor(jsonlog):
             line=' '.join([line, var.group(1)])
         else:
             line=' '.join([line, log[0]])
-        uri=re.search('^\w+\s(\/[^\?\s]+)\??.*\sHTTP\/(?:(?:1|2)\.?(?:1|0)?)$', find_values('request_line', jsonlog))
+        uri=re.search('^\w+\s(\/[^\?\s]+)\??.*\sHTTP\/(?:(?:1|2)\.?(?:1|0)?)$', find_values('request_line', log))
         if uri:
             line=' '.join([line, log[0]])
         else:
