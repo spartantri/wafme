@@ -48,7 +48,7 @@ def extractor(jsonlog):
         except:
             uri=find_values('request_line', jsonlog)
             if uri:
-                line=' '.join([line, uri[0])
+                line=' '.join([line, uri[0]])
         txid=find_values('transaction_id', jsonlog)
         line=' '.join([line, txid])
         print line
