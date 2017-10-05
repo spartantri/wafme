@@ -28,7 +28,7 @@ def find_values(id, json_repr):
 
 def extractor(jsonlog):
     line=''
-    uri=re.search('^\w+\s(\/[^\?\s]+)\??.*\sHTTP\/(?:(?:1|2)\.?(?:1|0)?)$', find_values('request_line', jsonlog))
+    uri=re.search('^\w+\s(\/[^\?\s]+)\??.*\sHTTP\/(?:(?:1|2)\.?(?:1|0)?)$', find_values('request_line', jsonlog)[0])
     for log in find_values('messages', jsonlog):
         for event in log:
             if uri:
