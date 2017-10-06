@@ -53,13 +53,23 @@ def extractor(jsonlog):
             else:
                 line=' '.join([line, log[0]])
             if id_check==True and var_check==True:
-                result.setdefault(''.join([id.group(1),'_',uri.group(1)]), []).append(var.group(1))
-            line=' '.join([line, txid])
-            print line
-            print result
+                add_item(id.group(1), uri.group(1), var.group(1))
+                print result
+            else:
+                line=' '.join([line, txid])
+                print line
             del var
             del id
             line=''
+    return
+
+def add_item(id, uri, var):
+    global result
+    item=''.join([id,'_',uri])
+    if var not in result.setdefault(item, {}):
+        result.setdefault(item, {})[var]=1
+    else:
+        result.setdefault(item, {})[var]+=1
     return
 
 
