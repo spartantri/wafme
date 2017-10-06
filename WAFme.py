@@ -35,7 +35,7 @@ def extractor(jsonlog):
             if uri:
                 line=' '.join([line, uri.group(1)])
             else:
-                line=' '.join([line, find_values('request_line', log)])
+                line=' '.join([line, find_values('request_line', jsonlog)[0]])
             id=re.search('\[id "([^"]+)"\]', log[0])
             if id:
                 line=''.join([line, str(id.group(1))])
@@ -48,7 +48,7 @@ def extractor(jsonlog):
                 line=' '.join([line, log[0]])
             line=' '.join([line, txid])
             print line
-            var=line=None
+            var=line=False
     return
 
 
