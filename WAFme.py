@@ -14,6 +14,8 @@
 import json, re
 import RuleEditor, tail
 
+result={}
+
 def find_values(id, json_repr):
     results = []
 
@@ -27,11 +29,13 @@ def find_values(id, json_repr):
 
 
 def extractor(jsonlog):
+    global result
     line=''
     uri=re.search('^\w+\s(\/[^\?\s]+)\??.*\sHTTP\/(?:(?:1|2)\.?(?:1|0)?)$', find_values('request_line', jsonlog)[0])
     txid=find_values('transaction_id', jsonlog)[0]
     for log in find_values('messages', jsonlog):
         for event in log:
+            id_check=var_check=False
             if uri:
                 line=' '.join([line, uri.group(1)])
             else:
@@ -39,17 +43,22 @@ def extractor(jsonlog):
             id=re.search('\[id "([^"]+)"\]', log[0])
             if id:
                 line=''.join([line, str(id.group(1))])
+                id_check=True
             else:
                 line=''.join([line, 'noid'])
             var=re.search('\[data "Matched Data:.*found within (\S+): ', log[0])
             if var:
                 line=' '.join([line, var.group(1)])
+                var_check=True
             else:
                 line=' '.join([line, log[0]])
+            if id_check==True and var_check==True:
+                result.setdefault(''.join([id.group(1),'_',uri.group(1)]), []).append(var.group(1))
             line=' '.join([line, txid])
             print line
+            print result
             del var
-            del uri
+            del id
             line=''
     return
 
