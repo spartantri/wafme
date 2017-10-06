@@ -48,7 +48,9 @@ def extractor(jsonlog):
                 line=' '.join([line, log[0]])
             line=' '.join([line, txid])
             print line
-            var=line=False
+            del var
+            del uri
+            line=''
     return
 
 
