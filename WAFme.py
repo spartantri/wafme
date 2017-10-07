@@ -49,7 +49,7 @@ def extractor(jsonlog):
                 line=' '.join([line, 'noid'])
             var=re.search('\[data "(?:M|m)atch.*found\swithin\s(\S+)\s', log[0])
             if not var:
-                var=re.search('(?i:match).*?\s(?:at|against)\s(\S+?)\.?\s', log[0])
+                var=re.search('(?:M|m)atch.*?\s(?:at|against)\s(\S+?)\.?\s', log[0])
             if var:
                 line=' '.join([line, var.group(1)])
                 var_check=True
