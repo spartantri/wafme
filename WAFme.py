@@ -26,7 +26,7 @@ restart_command='./apache_restart.sh'
 
 def largest_id():
     global new_rule_id, rules_output
-    max_num = new_rule_id
+    val = max_num = new_rule_id
     with open(rules_output, 'r') as data:
         for line in data.readlines(): # read the lines as a generator to be nice to my memory
             try:
