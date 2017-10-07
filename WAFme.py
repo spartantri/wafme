@@ -116,6 +116,8 @@ def rule_skeleton(id, target, match, uri):
         original_target=re.search(rx, target[0])
         comment=''.join([comment,'#Parent rule %s whitelisting %s at %s\n']) % (id, original_target.group(1), uri)
         target[0]=original_target.group(1)
+    else:
+        comment=''
     comment=''.join([comment,'#%s whitelisted from %s\n' % (target[0], uri)])
     sk_ctlruleremovetargetbyid='SecRule %s "@endsWith %s$" \\\n' % ('REQUEST_FILENAME', uri)
     sk_ctlruleremovetargetbyid_actions='\\\n    '.join(['"id:', str(new_rule_id), 'phase:2', 't:none', 'nolog', 'pass']) 
