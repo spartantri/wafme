@@ -19,6 +19,9 @@ result={}
 actions=variables=operators=transforms=list()
 rule_parents={'921180':['TX:paramcounter_','921170','ARGS_NAMES']}
 new_rule_id=37173
+audit_log='audit.log'
+rules_output='REQUEST-903.9003-CUSTOMAPP-EXCLUSION-RULES.conf'
+
 
 def find_values(id, json_repr):
     results = []
@@ -58,6 +61,7 @@ def extractor(jsonlog):
                 line=' '.join([line, log[0]])
             if id_check==True and var_check==True:
                 add_item(id.group(1), uri.group(1), var.group(1))
+                print '.',
             else:
                 line=' '.join([line, txid])
                 print 'ERROR:',
@@ -83,7 +87,6 @@ def add_item(id, uri, var):
         result.setdefault(item, {})[var]=1
     else:
         result.setdefault(item, {})[var]+=1
-    print '.',
     return
 
 
@@ -105,8 +108,15 @@ def print_rule():
 
 
 def rule_skeleton(id, target, match, uri):
-    global new_rule_id
-    comment='#%s whitelisted from %s\n' % (target[0], uri)
+    global new_rule_id, rule_parents
+    if id in rule_parents:
+        comment='#Sibling rule %s triggered on %s at %s\n' % (id, target[0], uri)
+        id=rule_parents[id][1]
+        rx=''.join(['^',rule_parents[id][0]],'(.*)')
+        original_target=re.search(rx, target[0])
+        comment=''.join([comment,'#Parent rule %s whitelisting %s at %s\n']) % (id, original_target.group(1), uri)
+        target[0]=original_target.group(1)
+    comment=''.join([comment,'#%s whitelisted from %s\n' % (target[0], uri)])
     sk_ctlruleremovetargetbyid='SecRule %s "@endsWith %s$" \\\n' % ('REQUEST_FILENAME', uri)
     sk_ctlruleremovetargetbyid_actions='\\\n    '.join(['"id:', str(new_rule_id), 'phase:2', 't:none', 'nolog', 'pass']) 
     target_list=''
@@ -116,6 +126,8 @@ def rule_skeleton(id, target, match, uri):
     target_list=''.join([target_list, '"'])
     rule=''.join([comment, sk_ctlruleremovetargetbyid, '    ', sk_ctlruleremovetargetbyid_actions, target_list])
     print rule
+    with open(rules_output, 'w') as file:
+        file.write(rule)
     new_rule_id+=1
     return
 
@@ -124,8 +136,9 @@ def main():
     global variables
     soup = RuleEditor.get_ref_manual()
     variables = RuleEditor.get_ref_section('Variables', soup)
-    t=tail.Tail('audit.log')
+    t=tail.Tail(audit_log)
     t.register_callback(extractor)
+    print 'Press CTRL+C to finish tailing %s and output the rules to %s' % (audit_log, rules_output)
     t.follow()
 
 
