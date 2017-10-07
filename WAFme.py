@@ -130,7 +130,7 @@ def rule_skeleton(id, target, match, uri):
     target_list=''.join([target_list, '"'])
     rule=''.join([comment, sk_ctlruleremovetargetbyid, '', sk_ctlruleremovetargetbyid_actions, target_list])
     print rule
-    with open(rules_output, 'w') as file:
+    with open(rules_output, 'a') as file:
         file.write(rule)
     new_rule_id+=1
     return
