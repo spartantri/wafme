@@ -18,6 +18,7 @@ from collections import namedtuple
 result={}
 actions=variables=operators=transforms=list()
 rule_parents={'921180':['TX:paramcounter_','921170','ARGS_NAMES']}
+new_rule_id=37173
 
 def find_values(id, json_repr):
     results = []
@@ -67,22 +68,6 @@ def extractor(jsonlog):
     return
 
 
-def print_rule():
-    global result, variables, rule_parents
-    variables_rx='|'.join(var.name for var in variables)
-    variables_rx=''.join(['^(',variables_rx,')'])
-    print result
-    for e in result.keys():
-        id, uri = e.split(',', 1)
-        for i in result[e].keys():
-            prob=re.search(variables_rx, result[e].keys()[0])
-            if prob:
-                print "The rule %s matched %s from %s %s times at uri %s" % (id, prob.group(1), result[e].keys()[0], result[e][i], uri)
-            else:
-                print "The rule %s matched %s %s times at uri %s" % (id, result[e].keys()[0], result[e][i], uri)
-    return
-
-
 def sigint_handler(signum, frame):
     print_rule()
     exit(0)
@@ -99,6 +84,40 @@ def add_item(id, uri, var):
     else:
         result.setdefault(item, {})[var]+=1
     print '.',
+    return
+
+
+def print_rule():
+    global result, variables, rule_parents
+    variables_rx='|'.join(var.name for var in variables)
+    variables_rx=''.join(['^(',variables_rx,')'])
+    print result
+    for e in result.keys():
+        id, uri = e.split(',', 1)
+        for i in result[e].keys():
+            prob=re.search(variables_rx, result[e].keys()[0])
+            if prob:
+                print "The rule %s matched %s from %s %s times at uri %s" % (id, prob.group(1), result[e].keys()[0], result[e][i], uri)
+            else:
+                print "The rule %s matched %s %s times at uri %s" % (id, result[e].keys()[0], result[e][i], uri)
+        rule_skeleton(id, result[e].keys()[0], result[e], uri)
+    return
+
+def rule_skeleton(id, target, match, uri)
+    global new_rule_id
+    sk_ctlruleremovetargetbyid='''SecRule %s "@endsWith %s$" \
+        "id:%s,\
+        phase:2,\
+        t:none,\
+        nolog,\
+        pass,\''' % (target, uri, str(new_rule_id))
+    target_list=''
+    for ctl in target.keys():
+        sk_ctlruleremovetargetbyid_1='ctl:ruleRemoveTargetById=%s;%s' % (id, ctl)
+        target_list=',\\\n'.join([target_list, sk_ctlruleremovetargetbyid_1])
+    target_list=''.join([target_list, '"'])
+    rule=''.join([sk_ctlruleremovetargetbyid, target_list])
+    print rule
     return
 
 
