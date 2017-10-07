@@ -120,12 +120,13 @@ def rule_skeleton(id, target, match, uri):
         comment=''
     comment=''.join([comment,'#%s whitelisted from %s\n' % (target[0], uri)])
     sk_ctlruleremovetargetbyid='SecRule %s "@endsWith %s$" \\\n' % ('REQUEST_FILENAME', uri)
-    sk_ctlruleremovetargetbyid_actions=',\\\n    '.join(['"id:%s' % str(new_rule_id), 'phase:2', 't:none', 'nolog', 'pass']) 
+    sk_ctlruleremovetargetbyid_actions=',\\\n    '.join(['"id:%s' % str(new_rule_id), 'phase:2', 't:none', 'nolog', 'pass'])
+    sk_ctlruleremovetargetbyid_actions=''.join([sk_ctlruleremovetargetbyid_actions, ',\\\n    '])
     target_list=''
     for ctl in target:
         sk_ctlruleremovetargetbyid_1='ctl:ruleRemoveTargetById=%s;%s' % (id, ctl)
         target_list=',\\\n    '.join([target_list, sk_ctlruleremovetargetbyid_1])
-    target_list=''.join(['    ', target_list, '"'])
+    target_list=''.join([target_list, '"'])
     rule=''.join([comment, sk_ctlruleremovetargetbyid, '', sk_ctlruleremovetargetbyid_actions, target_list])
     print rule
     with open(rules_output, 'w') as file:
