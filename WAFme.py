@@ -73,7 +73,7 @@ def print_rule():
     variables_rx=''.join(['^(',variables_rx,')'])
     print result
     for e in result.keys():
-        id, uri = e.split('_', 1)
+        id, uri = e.split(',', 1)
         for i in result[e].keys():
             prob=re.search(variables_rx, result[e].keys()[0])
             if prob:
@@ -93,7 +93,7 @@ signal.signal(signal.SIGINT, sigint_handler)
 
 def add_item(id, uri, var):
     global result
-    item=''.join([id,'_',uri])
+    item=''.join([id,',',uri])
     if var not in result.setdefault(item, {}):
         result.setdefault(item, {})[var]=1
     else:
