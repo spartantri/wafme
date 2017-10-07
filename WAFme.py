@@ -103,7 +103,8 @@ def print_rule():
         rule_skeleton(id, result[e].keys()[0], result[e], uri)
     return
 
-def rule_skeleton(id, target, match, uri)
+
+def rule_skeleton(id, target, match, uri):
     global new_rule_id
     sk_ctlruleremovetargetbyid='''SecRule %s "@endsWith %s$" \
         "id:%s,\
