@@ -30,7 +30,7 @@ def largest_id():
     with open(rules_output, 'r') as data:
         for line in data.readlines(): # read the lines as a generator to be nice to my memory
             try:
-                id=re.search('id:(\d+)',line
+                id=re.search('id:(\d+)',line)
                 if id:
                     val = int(id.group(1))
                 del id
