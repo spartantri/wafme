@@ -38,8 +38,8 @@ def largest_id():
                 val = 0
             if val > max_num: # logic
                 max_num = val
-    if new_rule_id < max_num:
-        new_rule_id = max_num
+    if new_rule_id <= max_num:
+        new_rule_id = max_num+1
     return
 
 
