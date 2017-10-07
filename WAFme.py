@@ -98,6 +98,7 @@ def add_item(id, uri, var):
         result.setdefault(item, {})[var]=1
     else:
         result.setdefault(item, {})[var]+=1
+    print '.'
     return
 
 
