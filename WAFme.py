@@ -60,7 +60,7 @@ def extractor(jsonlog):
                 add_item(id.group(1), uri.group(1), var.group(1))
             else:
                 line=' '.join([line, txid])
-                print 'Error'
+                print 'ERROR:',
                 print line
             del var
             del id
