@@ -13,8 +13,11 @@
 
 import json, re
 import RuleEditor, tail
+from collections import namedtuple
 
 result={}
+actions=variables=operators=transforms=list()
+rule_parents={'921180':['TX:paramcounter_','921170','ARGS_NAMES']}
 
 def find_values(id, json_repr):
     results = []
@@ -61,7 +64,24 @@ def extractor(jsonlog):
             del var
             del id
             line=''
+            print_rule()
     return
+
+
+def print_rule():
+    global result, variables, rule_parents
+    variables_rx='|'.join(var.name for var in variables)
+    variables_rx=''.join(['^(',variables_rx,')'])
+    for e in result.keys():
+        id, uri = e.split('_', 1)
+        for i in result[e].keys():
+            prob=re.search(variables_rx, result[e][i].keys()[0])
+            if prob:
+                print "The rule %s matched %s from %s at uri %s" % (id, prob.group(1), result[e][i].keys()[0] ,uri)"
+            else:
+                print "The rule %s matched %s at uri %s" % (id, result[e][i].keys()[0] ,uri)"
+    return
+    
 
 
 def add_item(id, uri, var):
@@ -75,6 +95,7 @@ def add_item(id, uri, var):
 
 
 def main():
+    global variables
     soup = RuleEditor.get_ref_manual()
     variables = RuleEditor.get_ref_section('Variables', soup)
     t=tail.Tail('audit.log')
