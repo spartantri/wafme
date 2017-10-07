@@ -77,9 +77,9 @@ def print_rule():
         for i in result[e].keys():
             prob=re.search(variables_rx, result[e].keys()[0])
             if prob:
-                print "The rule %s matched %s from %s at uri %s" % (id, prob.group(1), result[e].keys()[0] ,uri)
+                print "The rule %s matched %s from %s %s times at uri %s" % (id, prob.group(1), result[e].keys()[0], result[e][i], uri)
             else:
-                print "The rule %s matched %s at uri %s" % (id, result[e].keys()[0] ,uri)
+                print "The rule %s matched %s %s times at uri %s" % (id, result[e].keys()[0], result[e][i], uri)
     return
     
 
