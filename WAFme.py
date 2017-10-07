@@ -106,18 +106,14 @@ def print_rule():
 
 def rule_skeleton(id, target, match, uri):
     global new_rule_id
-    sk_ctlruleremovetargetbyid='''SecRule %s "@endsWith %s$" \
-        "id:%s,\
-        phase:2,\
-        t:none,\
-        nolog,\
-        pass,\''' % (target, uri, str(new_rule_id))
+    sk_ctlruleremovetargetbyid='SecRule %s "@endsWith %s$" \\\n' % (target, uri)
+    sk_ctlruleremovetargetbyid_actions='\\\n    '.join(['"id:', str(new_rule_id), 'phase:2', 't:none', 'nolog', 'pass']) 
     target_list=''
     for ctl in target.keys():
         sk_ctlruleremovetargetbyid_1='ctl:ruleRemoveTargetById=%s;%s' % (id, ctl)
         target_list=',\\\n'.join([target_list, sk_ctlruleremovetargetbyid_1])
     target_list=''.join([target_list, '"'])
-    rule=''.join([sk_ctlruleremovetargetbyid, target_list])
+    rule=''.join([sk_ctlruleremovetargetbyid, sk_ctlruleremovetargetbyid_actions, target_list])
     print rule
     return
 
