@@ -97,23 +97,24 @@ def print_rule():
         for i in result[e].keys():
             prob=re.search(variables_rx, result[e].keys()[0])
             if prob:
-                print "The rule %s matched %s from %s %s times at uri %s" % (id, prob.group(1), result[e].keys()[0], result[e][i], uri)
+                print "#The rule %s matched %s from %s %s times at uri %s" % (id, prob.group(1), result[e].keys()[0], result[e][i], uri)
             else:
-                print "The rule %s matched %s %s times at uri %s" % (id, result[e].keys()[0], result[e][i], uri)
+                print "#The rule %s matched %s %s times at uri %s" % (id, result[e].keys()[0], result[e][i], uri)
         rule_skeleton(id, result[e].keys(), result[e], uri)
     return
 
 
 def rule_skeleton(id, target, match, uri):
     global new_rule_id
-    sk_ctlruleremovetargetbyid='SecRule %s "@endsWith %s$" \\\n' % (target[0], uri)
+    comment='#%s whitelisted from %s\n' % (target[0], uri)
+    sk_ctlruleremovetargetbyid='SecRule %s "@endsWith %s$" \\\n' % ('REQUEST_FILENAME', uri)
     sk_ctlruleremovetargetbyid_actions='\\\n    '.join(['"id:', str(new_rule_id), 'phase:2', 't:none', 'nolog', 'pass']) 
     target_list=''
     for ctl in target:
         sk_ctlruleremovetargetbyid_1='ctl:ruleRemoveTargetById=%s;%s' % (id, ctl)
         target_list=',\\\n'.join([target_list, sk_ctlruleremovetargetbyid_1])
     target_list=''.join([target_list, '"'])
-    rule=''.join([sk_ctlruleremovetargetbyid, sk_ctlruleremovetargetbyid_actions, target_list])
+    rule=''.join([comment, sk_ctlruleremovetargetbyid, sk_ctlruleremovetargetbyid_actions, target_list])
     print rule
     return
 
