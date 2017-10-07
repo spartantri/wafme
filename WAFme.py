@@ -11,7 +11,7 @@
 # Licence:     Apache2
 # -------------------------------------------------------------------------------
 
-import json, re
+import json, re, signal
 import RuleEditor, tail
 from collections import namedtuple
 
@@ -57,14 +57,13 @@ def extractor(jsonlog):
                 line=' '.join([line, log[0]])
             if id_check==True and var_check==True:
                 add_item(id.group(1), uri.group(1), var.group(1))
-                print result
             else:
                 line=' '.join([line, txid])
+                print 'Error'
                 print line
             del var
             del id
             line=''
-            print_rule()
     return
 
 
@@ -72,6 +71,7 @@ def print_rule():
     global result, variables, rule_parents
     variables_rx='|'.join(var.name for var in variables)
     variables_rx=''.join(['^(',variables_rx,')'])
+    print result
     for e in result.keys():
         id, uri = e.split('_', 1)
         for i in result[e].keys():
@@ -81,7 +81,14 @@ def print_rule():
             else:
                 print "The rule %s matched %s %s times at uri %s" % (id, result[e].keys()[0], result[e][i], uri)
     return
-    
+
+
+def sigint_handler(signum, frame):
+    print_rule()
+    exit(0)
+
+ 
+signal.signal(signal.SIGINT, sigint_handler)
 
 
 def add_item(id, uri, var):
