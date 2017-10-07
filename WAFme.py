@@ -24,6 +24,21 @@ rules_output='REQUEST-903.9003-CUSTOMAPP-EXCLUSION-RULES.conf'
 restart_command='./apache_restart.sh'
 
 
+def largest_id():
+    global new_rule_id, rules_output
+    with open(rules_output, 'r') as data:
+        for line in data.readlines(): # read the lines as a generator to be nice to my memory
+        try:
+            val = int(re.search('id:(\d+)',line).group(1))
+        except ValueError: # just incase the text file is not formatted like your example
+            val = 0
+        if val > max_num: # logic
+            max_num = val
+    if new_rule_id < max_num:
+        new_rule_id = max_num
+    return
+
+
 def find_values(id, json_repr):
     results = []
     def _decode_dict(a_dict):
@@ -140,9 +155,11 @@ def rule_skeleton(id, target, match, uri):
 
 
 def main():
-    global variables
+    global variables, new_rule_id
     soup = RuleEditor.get_ref_manual()
     variables = RuleEditor.get_ref_section('Variables', soup)
+    largest_id()
+    print 'Starting rule id will be : %d' % new_rule_id
     t=tail.Tail(audit_log)
     t.register_callback(extractor)
     print 'Press CTRL+C to finish tailing %s and output the rules to %s' % (audit_log, rules_output)
