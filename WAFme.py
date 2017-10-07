@@ -111,7 +111,7 @@ def rule_skeleton(id, target, match, uri):
     global new_rule_id, rule_parents
     if id in rule_parents:
         comment='#Sibling rule %s triggered on %s at %s\n' % (id, target[0], uri)
-        rx=''.join(['^',rule_parents[id][0]],'(.*)'])
+        rx=''.join(['^',rule_parents[id][0],'(.*)'])
         id=rule_parents[id][1]
         original_target=re.search(rx, target[0])
         comment=''.join([comment,'#Parent rule %s whitelisting %s at %s\n']) % (id, original_target.group(1), uri)
