@@ -28,12 +28,12 @@ def largest_id():
     global new_rule_id, rules_output
     with open(rules_output, 'r') as data:
         for line in data.readlines(): # read the lines as a generator to be nice to my memory
-        try:
-            val = int(re.search('id:(\d+)',line).group(1))
-        except ValueError: # just incase the text file is not formatted like your example
-            val = 0
-        if val > max_num: # logic
-            max_num = val
+            try:
+                val = int(re.search('id:(\d+)',line).group(1))
+            except ValueError: # just incase the text file is not formatted like your example
+                val = 0
+            if val > max_num: # logic
+                max_num = val
     if new_rule_id < max_num:
         new_rule_id = max_num
     return
