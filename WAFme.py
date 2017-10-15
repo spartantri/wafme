@@ -176,8 +176,9 @@ def rule_globals():
     for e in result.keys():
         id, uri = e.split(',', 1)
         for i in result[e].keys():
-            if id not in global_whitelist.setdefault(i, [])[i]:
-                global_whitelist.setdefault(i, [])[i].append(id)
+            if i in skipper:
+                if id not in global_whitelist.setdefault(i, []):
+                    global_whitelist.setdefault(i, [])[i].append(id)
     for r in global_whitelist.keys():
         for item in global_whitelist[r]:
             rule= "SecRuleUpdateTargetById %s !%s\n" % (r, item)
