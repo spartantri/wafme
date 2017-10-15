@@ -193,7 +193,7 @@ def shrinker():
     for e in result.keys():
         id, uri = e.split(',', 1)
         for i in result[e].keys():
-            if i not in elements.setdefault(i, {})
+            if i not in elements.setdefault(i, {}):
                 elements.setdefault(i, {})[i]=1
             else:
                 elements.setdefault(i, {})[i]+=1
