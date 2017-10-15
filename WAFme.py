@@ -187,7 +187,7 @@ def rule_globals():
     return
 
 
-def shrinker()
+def shrinker():
     global result, variables, rule_parents
     elements={}
     for e in result.keys():
