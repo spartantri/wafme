@@ -183,7 +183,20 @@ def rule_globals():
                     global_whitelist[i].append(id)
     for r in global_whitelist.keys():
         for item in global_whitelist[r]:
-            rule= "SecRuleUpdateTargetById %s !%s\n" % (r, item)
+            
+            if id in rule_parents:
+                comment='#Sibling rule %s triggered on %s\n' % (id, item)
+                rx=''.join(['^',rule_parents[id][0],'(.*)'])
+                new_id=rule_parents[id][1]
+                original_target=re.search(rx, item)
+                comment=''.join([comment,'#Parent rule %s whitelisting %s\n']) % (new_id, original_target.group(1))
+                new_item=original_target.group(1)
+            else:
+                comment=''
+                new_item=item
+                comment=''.join([comment,'#%s whitelisted\n' % (item, uri)])
+            
+            rule= "SecRuleUpdateTargetById %s !%s\n" % (new_id, new_item)
             rules=''.join([rules, rule])
     with open(rules_output, 'a') as file:
             file.write(rules)
