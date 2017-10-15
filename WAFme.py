@@ -22,6 +22,8 @@ new_rule_id=37173
 audit_log='audit.log'
 rules_output='REQUEST-903.9003-CUSTOMAPP-EXCLUSION-RULES.conf'
 restart_command='./apache_restart.sh'
+skipper=[]
+min_instances=2
 
 
 def largest_id():
@@ -93,7 +95,7 @@ def extractor(jsonlog):
 
 
 def sigint_handler(signum, frame):
-    print_rule()
+    print_rules()
     retvalue = os.system(restart_command)
     print retvalue
     exit(0)
@@ -112,11 +114,15 @@ def add_item(id, uri, var):
     return
 
 
-def print_rule():
-    global result, variables, rule_parents
+def print_rules():
+    global result, variables, rule_parents, min_instances, skipper
     variables_rx='|'.join(var.name for var in variables)
     variables_rx=''.join(['^(',variables_rx,')'])
     print result
+    elements=shrinker()
+    for a in elements.keys():
+        if elements[a] > min_instances:
+            skipper.append(a)
     for e in result.keys():
         id, uri = e.split(',', 1)
         for i in result[e].keys():
@@ -126,11 +132,13 @@ def print_rule():
             else:
                 print "#The rule %s matched %s %s times at uri %s" % (id, result[e].keys()[0], result[e][i], uri)
         rule_skeleton(id, result[e].keys(), result[e], uri)
+        rule_globals()
     return
 
 
 def rule_skeleton(id, target, match, uri):
-    global new_rule_id, rule_parents
+    global new_rule_id, rule_parents, skipper
+    counter=0
     if id in rule_parents:
         comment='#Sibling rule %s triggered on %s at %s\n' % (id, target[0], uri)
         rx=''.join(['^',rule_parents[id][0],'(.*)'])
@@ -147,15 +155,49 @@ def rule_skeleton(id, target, match, uri):
     #sk_ctlruleremovetargetbyid_actions=''.join([sk_ctlruleremovetargetbyid_actions, ',\\\n    '])
     target_list=''
     for ctl in target:
-        sk_ctlruleremovetargetbyid_1='ctl:ruleRemoveTargetById=%s;%s' % (id, ctl)
-        target_list=',\\\n    '.join([target_list, sk_ctlruleremovetargetbyid_1])
+        if ctl not in skipper:
+            sk_ctlruleremovetargetbyid_1='ctl:ruleRemoveTargetById=%s;%s' % (id, ctl)
+            target_list=',\\\n    '.join([target_list, sk_ctlruleremovetargetbyid_1])
+            counter+=1
     target_list=''.join([target_list, '"\n'])
     rule=''.join([comment, sk_ctlruleremovetargetbyid, '', sk_ctlruleremovetargetbyid_actions, target_list])
-    print rule
-    with open(rules_output, 'a') as file:
-        file.write(rule)
-    new_rule_id+=1
+    if counter>0:
+        print rule
+        with open(rules_output, 'a') as file:
+            file.write(rule)
+        new_rule_id+=1
     return
+
+
+def rule_globals():
+    global result, rule_parents, skipper
+    global_whitelist={}
+    rules=""
+    for e in result.keys():
+        id, uri = e.split(',', 1)
+        for i in result[e].keys():
+            if id not in global_whitelist.setdefault(i, [])[i]:
+                global_whitelist.setdefault(i, [])[i].append(id)
+    for r in global_whitelist.keys():
+        for item in global_whitelist[r]:
+            rule= "SecRuleUpdateTargetById %s !%s\n" % (r, item)
+            rules=''.join([rules, rule])
+    with open(rules_output, 'a') as file:
+            file.write(rules)
+    return
+
+
+def shrinker()
+    global result, variables, rule_parents
+    elements={}
+    for e in result.keys():
+        id, uri = e.split(',', 1)
+        for i in result[e].keys():
+            if i not in elements.setdefault(i, {})
+                elements.setdefault(i, {})[i]=1
+            else:
+                elements.setdefault(i, {})[i]+=1
+    return elements
 
 
 def main():
