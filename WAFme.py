@@ -15,8 +15,8 @@ import json, re, signal, os
 import RuleEditor, tail
 from collections import namedtuple
 
-result={}
-actions=variables=operators=transforms=list()
+result=sample_requests={}
+actions=variables=operators=transforms=skipper=list()
 rule_parents={'921180':['TX:paramcounter_','921170','ARGS_NAMES']}
 rule_sensitive=['941100','941101','942100']
 replacement_element={"REQUEST_COOKIES:wordpress_sec_[a-zA-Z0-9]{10-40}":"REQUEST_COOKIES:/wordpress_sec_*/",
@@ -25,7 +25,6 @@ new_rule_id=37173
 audit_log='audit.log'
 rules_output='REQUEST-903.9003-CUSTOMAPP-EXCLUSION-RULES.conf'
 restart_command='./apache_restart.sh'
-skipper=[]
 min_instances=2
 
 
@@ -86,6 +85,7 @@ def extractor(jsonlog):
                 line=' '.join([line, log[0]])
             if id_check==True and var_check==True:
                 add_item(id.group(1), uri.group(1), var.group(1))
+                add_sample(id.group(1), uri.group(1), var.group(1), jsonlog)
                 print '.',
             else:
                 line=' '.join([line, txid])
@@ -115,6 +115,10 @@ def add_item(id, uri, var):
     else:
         result.setdefault(item, {})[var]+=1
     return
+
+
+def add_sample(id, uri, var, content):
+  return
 
 
 def print_rules():
@@ -220,9 +224,10 @@ def rule_globals():
                 if rule not in ruleset:
                     rule=''.join([rule, "\n"])
                     rules=''.join([rules, rule])
-    with open(rules_output, 'a') as file:
-        file.write(rules)
-    print rules
+    if rules != "#Site wide whitelisted elements\n":
+        with open(rules_output, 'a') as file:
+            file.write(rules)
+        print rules
     return
 
 
