@@ -131,6 +131,7 @@ def print_rules():
                 print "#The rule %s matched %s from %s %s times at uri %s" % (id, prob.group(1), result[e].keys()[0], result[e][i], uri)
             else:
                 print "#The rule %s matched %s %s times at uri %s" % (id, result[e].keys()[0], result[e][i], uri)
+        print id, result[e].keys(), result[e], uri
         rule_skeleton(id, result[e].keys(), result[e], uri)
         rule_globals()
     return
@@ -169,6 +170,15 @@ def rule_skeleton(id, target, match, uri):
     return
 
 
+def get_parent(id, target):
+    global rule_parents
+    if id in rule_parents:
+        rx=''.join(['^',rule_parents[id][0],'(.*)'])
+        id=rule_parents[id][1]
+        original_target=re.search(rx, target[0])
+        target[0]=original_target.group(1)
+    return id, target
+
 def rule_globals():
     global result, rule_parents, skipper
     global_whitelist={}
@@ -183,20 +193,7 @@ def rule_globals():
                     global_whitelist[i].append(id)
     for r in global_whitelist.keys():
         for item in global_whitelist[r]:
-            
-            if id in rule_parents:
-                comment='#Sibling rule %s triggered on %s\n' % (id, item)
-                rx=''.join(['^',rule_parents[id][0],'(.*)'])
-                new_id=rule_parents[id][1]
-                original_target=re.search(rx, item)
-                comment=''.join([comment,'#Parent rule %s whitelisting %s\n']) % (new_id, original_target.group(1))
-                new_item=original_target.group(1)
-            else:
-                comment=''
-                new_item=item
-                comment=''.join([comment,'#%s whitelisted\n' % (item, uri)])
-            
-            rule= "SecRuleUpdateTargetById %s !%s\n" % (new_id, new_item)
+            rule= "SecRuleUpdateTargetById %s !%s\n" % (id, item)
             rules=''.join([rules, rule])
     with open(rules_output, 'a') as file:
             file.write(rules)
