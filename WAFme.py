@@ -188,7 +188,7 @@ def get_parent(id, target):
 def rule_globals():
     global result, rule_parents, skipper
     global_whitelist={}
-    rules=""
+    rules="#Site wide whitelisted elements\n"
     for e in result.keys():
         id, uri = e.split(',', 1)
         for i in result[e].keys():
