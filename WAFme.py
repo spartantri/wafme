@@ -131,7 +131,7 @@ def print_rules():
                 print "#The rule %s matched %s from %s %s times at uri %s" % (id, prob.group(1), result[e].keys()[0], result[e][i], uri)
             else:
                 print "#The rule %s matched %s %s times at uri %s" % (id, result[e].keys()[0], result[e][i], uri)
-        print id, result[e].keys(), result[e], uri
+        #print id, result[e].keys(), result[e], uri
         rule_skeleton(id, result[e].keys(), result[e], uri)
         rule_globals()
     return
@@ -172,12 +172,18 @@ def rule_skeleton(id, target, match, uri):
 
 def get_parent(id, target):
     global rule_parents
+    child=[]
+    if type(target) is list:
+        child=target
+    else:
+        child=[target]
     if id in rule_parents:
         rx=''.join(['^',rule_parents[id][0],'(.*)'])
         id=rule_parents[id][1]
-        original_target=re.search(rx, target[0])
-        target[0]=original_target.group(1)
-    return id, target
+        original_target=re.search(rx, child[0])
+        child[0]=original_target.group(1)
+    return id, child
+
 
 def rule_globals():
     global result, rule_parents, skipper
