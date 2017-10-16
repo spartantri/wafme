@@ -118,9 +118,11 @@ def add_item(id, uri, var):
 
 
 def add_sample(id, uri, var, content):
+  print content
   request=find_values('request', content)[0]
-  print find_values('headers', request)[0]
-  print find_values('body', request)[0]
+  print request
+  #print find_values('headers', request)[0]
+  #print find_values('body', request)[0]
   return
 
 
