@@ -120,10 +120,10 @@ def add_item(id, uri, var):
 def add_sample(id, uri, var, content):
   request=find_values('request', content)[0]
   print request
-  headers=find_values('headers', request)[0]
+  headers=find_values('headers', request)
   body=find_values('body', request)[0]
   request_line=find_values('request_line', request)[0]
-  transaction=find_values('request', content)[0]
+  transaction=find_values('transaction', content)[0]
   print transaction
   transaction_id=find_values('transaction_id', transaction)[0]
   remote_address=find_values('remote_address', transaction)[0]
