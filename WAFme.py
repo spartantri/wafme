@@ -201,10 +201,14 @@ def rule_globals():
         for item in global_whitelist[r]:
             new_item, new_target = get_parent(item, [r])
             if item==new_item:
-                rule="SecRuleUpdateTargetById %s !%s\n" % (item, r)
+                rule="SecRuleUpdateTargetById %s !%s" % (item, r)
             else:
-                rule="SecRuleUpdateTargetById %s !%s\n" % (new_item, new_target[0])
-            rules=''.join([rules, rule])
+                rule="SecRuleUpdateTargetById %s !%s" % (new_item, new_target[0])
+            with open(rules_output, 'r') as file:
+                ruleset=file.read()
+                if rule not in ruleset:
+                    rule=''.join([rule, "\n"])
+                    rules=''.join([rules, rule])
     with open(rules_output, 'a') as file:
         file.write(rules)
     print rules
