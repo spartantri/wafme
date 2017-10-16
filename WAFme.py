@@ -202,7 +202,8 @@ def rule_globals():
             rule= "SecRuleUpdateTargetById %s !%s\n" % (item, r)
             rules=''.join([rules, rule])
     with open(rules_output, 'a') as file:
-            file.write(rules)
+        file.write(rules)
+    print rules
     return
 
 
