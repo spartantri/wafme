@@ -18,6 +18,9 @@ from collections import namedtuple
 result={}
 actions=variables=operators=transforms=list()
 rule_parents={'921180':['TX:paramcounter_','921170','ARGS_NAMES']}
+rule_sensitive=['941100','941101','942100']
+replacement_element={"REQUEST_COOKIES:wordpress_sec_[a-zA-Z0-9]{10-40}":"REQUEST_COOKIES:/wordpress_sec_*/",
+                    "REQUEST_COOKIES:wordpress_logged_in_[a-zA-Z0-9]{10-40}":"REQUEST_COOKIES:/wordpress_logged_in_*/"}
 new_rule_id=37173
 audit_log='audit.log'
 rules_output='REQUEST-903.9003-CUSTOMAPP-EXCLUSION-RULES.conf'
@@ -171,7 +174,7 @@ def rule_skeleton(id, target, match, uri):
 
 
 def get_parent(id, target):
-    global rule_parents
+    global rule_parents, replacement_element
     child=[]
     if type(target) is list:
         child=target
@@ -182,11 +185,15 @@ def get_parent(id, target):
         id=rule_parents[id][1]
         original_target=re.search(rx, child[0])
         child[0]=original_target.group(1)
+    for k in replacement_element.keys():
+        match=re.search(k, child[0])
+        if match:
+            child[0]=replacement_element[k]
     return id, child
 
 
 def rule_globals():
-    global result, rule_parents, skipper
+    global result, rule_parents, skipper, rule_sensitive
     global_whitelist={}
     rules="#Site wide whitelisted elements\n"
     for e in result.keys():
@@ -202,8 +209,12 @@ def rule_globals():
             new_item, new_target = get_parent(item, [r])
             if item==new_item:
                 rule="SecRuleUpdateTargetById %s !%s" % (item, r)
+                if item in rule_sensitive:
+                    print "#Warning whitelisting sensitive rule! - %s" % item
             else:
                 rule="SecRuleUpdateTargetById %s !%s" % (new_item, new_target[0])
+                if new_item in rule_sensitive:
+                    print "#Warning whitelisting sensitive rule! - %s" % item
             with open(rules_output, 'r') as file:
                 ruleset=file.read()
                 if rule not in ruleset:
