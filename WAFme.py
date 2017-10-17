@@ -101,12 +101,12 @@ def extractor(jsonlog):
 def sigint_handler(signum, frame):
     global new_rule_id, initial_rule_id
     print_rules()
-    retvalue = os.system(restart_command)
     print retvalue
     if new_rule_id==initial_rule_id:
         exit(0)
     else:
         initial_rule_id=new_rule_id
+        retvalue = os.system(restart_command)
         main()
 
  
