@@ -22,6 +22,7 @@ rule_sensitive=['941100','941101','942100']
 replacement_element={"REQUEST_COOKIES:wordpress_sec_[a-zA-Z0-9]{10-40}":"REQUEST_COOKIES:/wordpress_sec_*/",
                     "REQUEST_COOKIES:wordpress_logged_in_[a-zA-Z0-9]{10-40}":"REQUEST_COOKIES:/wordpress_logged_in_*/"}
 new_rule_id=37173
+initial_rule_id=new_rule_id
 audit_log='audit.log'
 rules_output='REQUEST-903.9003-CUSTOMAPP-EXCLUSION-RULES.conf'
 restart_command='./apache_restart.sh'
@@ -98,10 +99,15 @@ def extractor(jsonlog):
 
 
 def sigint_handler(signum, frame):
+    global new_rule_id, initial_rule_id
     print_rules()
     retvalue = os.system(restart_command)
     print retvalue
-    exit(0)
+    if new_rule_id==initial_rule_id:
+        exit(0)
+    else:
+        initial_rule_id=new_rule_id
+        main()
 
  
 signal.signal(signal.SIGINT, sigint_handler)
