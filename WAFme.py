@@ -201,7 +201,7 @@ def add_sample(id, uri, var, content):
   body=request["body"]
   request_line=request["request_line"]
   uri_check=re.search('^(\w+)\s(\/[^\?\s]+)\??(.*)\sHTTP\/(?:(?:1|2)\.?(?:1|0)?)$', request_line)
-  if uri != uricheck:
+  if uri != uri_check:
       print uri_check
   else:
       method=uri_check.group(1)
