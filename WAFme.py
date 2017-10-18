@@ -201,8 +201,10 @@ def add_sample(id, uri, var, content):
   body=request["body"]
   request_line=request["request_line"]
   uri_check=re.search('^(\w+)\s(\/[^\?\s]+)\??(.*)\sHTTP\/(?:(?:1|2)\.?(?:1|0)?)$', request_line)
-  if uri != uri_check:
-      print uri_check
+  if not uri_check:
+      print request_line
+  if uri != uri_check.group(2):
+      print uri_check.group(1),uri_check.group(2),uri_check.group(3)
   else:
       method=uri_check.group(1)
       request_filename=uri_check.group(2)
@@ -221,14 +223,15 @@ def add_sample(id, uri, var, content):
   local_address=transaction["local_address"]
   #local_port=transaction["local_port"]
   sample='import requests\n'
-  if method == "GET":
-      sample=''.join([sample,'requests.get("',headers["host"],request_filename])
-      if len (args)>0:
-          sample=''.join([sample,'?',args,'"'])
-      else:
-          sample=''.join([sample,'"'])
-      sample=''.join([sample,'headers=',str(headers),')'])
-  print sample
+  if uri_check:
+      if method == "GET":
+          sample=''.join([sample,'requests.get("',headers["host"],request_filename])
+          if len (args)>0:
+              sample=''.join([sample,'?',args,'"'])
+          else:
+              sample=''.join([sample,'"'])
+          sample=''.join([sample,'headers=',str(headers),')'])
+      print sample
   return
 
 
