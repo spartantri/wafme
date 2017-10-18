@@ -153,7 +153,7 @@ def extractor(jsonlog):
 
 
 def sigint_handler(signum, frame):
-    global result, sample_requests
+    global result, sample_requests, initial_rule_id, new_rule_id
     #Whenever a CTRL+C is pressed process the rules to output
     global new_rule_id, initial_rule_id
     #Process rules and output to rule set
@@ -169,6 +169,7 @@ def sigint_handler(signum, frame):
         print retvalue
         #Start over
         result=sample_requests={}
+        initial_rule_id=new_rule_id
         main()
 
  
