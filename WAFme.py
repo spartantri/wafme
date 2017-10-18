@@ -193,8 +193,7 @@ def add_item(id, uri, var):
 def add_sample(id, uri, var, content):
   #Build from the auditlog message a sample request to replay it
   #Get the request section of the audit log
-  request_raw=find_values('request', content)[0].replace("'", "\"")
-  request = json.loads(request_raw)
+  request=find_values('request', content)[0]
   #Printing the request section for debug purposes
   print request
   '''
@@ -202,7 +201,8 @@ def add_sample(id, uri, var, content):
   '''
   #Extract the interesting parts from the request to build the sample
   headers=request[headers]
-  print headers
+  for header in headers.keys():
+      print header ,":", headers[header]
   #body=find_values('body', request)[0]
   #request_line=find_values('request_line', request)[0]
   #Get the transaction section of the audit log to get the target to replay the request
