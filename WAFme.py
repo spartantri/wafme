@@ -193,18 +193,28 @@ def add_item(id, uri, var):
 def add_sample(id, uri, var, content):
   #Build from the auditlog message a sample request to replay it
   #Get the request section of the audit log
-  request=find_values('request', content)[0]
+  request_raw=find_values('request', content)[0].replace("'", "\"")
+  request = json.loads(request_raw)
   #Printing the request section for debug purposes
   print request
+  '''
+  {u'body': [u'_wpnonce=6accbc8b4e&timezone=Europe%2FParis&action=get-community-events'], u'headers': {u'Origin': u'https://spartantri.com', u'Content-Length': u'71', u'Accept-Language': u'en-US,en;q=0.8,es;q=0.6,fr;q=0.4', u'Accept-Encoding': u'gzip, deflate, br', u'Connection': u'keep-alive', u'Accept': u'*/*', u'User-Agent': u'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36', u'Host': u'spartantri.com', u'X-Requested-With': u'XMLHttpRequest', u'Cookie': u'wordpress_sec_431df988436e01d05386445149116061=freakingadmin%7C1508330225%7ChEMCZCxKpCoQhaTCC1Fme8COLAZUg5gPfONSEQdvAWy%7C6bcb644de198799bf0e4e3b7865b1c94e28b170f3f27c527de7494b2de453f2d; wp-settings-1=libraryContent%3Dbrowse%26editor%3Dtinymce%26imgsize%3Dlarge; wp-settings-time-1=1508143227; wordpress_test_cookie=WP+Cookie+check; wordpress_logged_in_431df988436e01d05386445149116061=freakingadmin%7C1508330225%7ChEMCZCxKpCoQhaTCC1Fme8COLAZUg5gPfONSEQdvAWy%7C262bc3f87978217c5527d42ce75e7475f52df886d05d4a082a1daa944294f1e8', u'Referer': u'https://spartantri.com/ModSecurity/wp-admin/index.php', u'Content-Type': u'application/x-www-form-urlencoded; charset=UTF-8'}, u'request_line': u'POST /ModSecurity/wp-admin/admin-ajax.php HTTP/1.1'}
+  '''
   #Extract the interesting parts from the request to build the sample
-  #headers=find_values('headers', request)
+  headers=request[headers]
+  print headers
   #body=find_values('body', request)[0]
   #request_line=find_values('request_line', request)[0]
   #Get the transaction section of the audit log to get the target to replay the request
-  transaction=find_values('transaction', content)[0]
+  transaction_raw=find_values('transaction', content)[0].replace("'", "\"")
+  transaction = json.loads(transaction_raw)
   #Printing the transaction section for debug purposes
   print transaction
-  #transaction_id=find_values('transaction_id', transaction)[0]
+  '''
+  {u'local_port': 443, u'remote_port': 37536, u'remote_address': u'78.227.109.215', u'time': u'18/Oct/2017:01:09:34 +0000', u'local_address': u'172.31.26.26', u'transaction_id': u'Weapzn8AAQEAAEikCSkAAAAI'}
+  '''
+  transaction_id=transaction["transaction_id"]
+  print transaction_id
   #remote_address=find_values('remote_address', transaction)[0]
   #remote_port=find_values('remote_port', transaction)[0]
   #local_address=find_values('local_address', transaction)[0]
