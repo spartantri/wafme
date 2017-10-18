@@ -200,7 +200,7 @@ def add_sample(id, uri, var, content):
   {u'body': [u'_wpnonce=6accbc8b4e&timezone=Europe%2FParis&action=get-community-events'], u'headers': {u'Origin': u'https://spartantri.com', u'Content-Length': u'71', u'Accept-Language': u'en-US,en;q=0.8,es;q=0.6,fr;q=0.4', u'Accept-Encoding': u'gzip, deflate, br', u'Connection': u'keep-alive', u'Accept': u'*/*', u'User-Agent': u'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36', u'Host': u'spartantri.com', u'X-Requested-With': u'XMLHttpRequest', u'Cookie': u'wordpress_sec_431df988436e01d05386445149116061=freakingadmin%7C1508330225%7ChEMCZCxKpCoQhaTCC1Fme8COLAZUg5gPfONSEQdvAWy%7C6bcb644de198799bf0e4e3b7865b1c94e28b170f3f27c527de7494b2de453f2d; wp-settings-1=libraryContent%3Dbrowse%26editor%3Dtinymce%26imgsize%3Dlarge; wp-settings-time-1=1508143227; wordpress_test_cookie=WP+Cookie+check; wordpress_logged_in_431df988436e01d05386445149116061=freakingadmin%7C1508330225%7ChEMCZCxKpCoQhaTCC1Fme8COLAZUg5gPfONSEQdvAWy%7C262bc3f87978217c5527d42ce75e7475f52df886d05d4a082a1daa944294f1e8', u'Referer': u'https://spartantri.com/ModSecurity/wp-admin/index.php', u'Content-Type': u'application/x-www-form-urlencoded; charset=UTF-8'}, u'request_line': u'POST /ModSecurity/wp-admin/admin-ajax.php HTTP/1.1'}
   '''
   #Extract the interesting parts from the request to build the sample
-  headers=request[headers]
+  headers=request["headers"]
   for header in headers.keys():
       print header ,":", headers[header]
   #body=find_values('body', request)[0]
