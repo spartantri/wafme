@@ -223,8 +223,8 @@ def add_sample(id, uri, var, content):
   local_address=transaction["local_address"]
   #local_port=transaction["local_port"]
   sample='import requests\n'
-  for k in headers.keys():
-      host_header=re.search("?i:(host)", k)
+  for header_key in headers.keys():
+      host_header=re.search("?i:(host)", header_key)
       if host_header:
           host_header_name=host_header.group(1)
   if uri_check:
