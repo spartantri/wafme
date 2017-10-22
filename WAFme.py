@@ -198,7 +198,6 @@ def add_sample(id, uri, var, content):
   #print request
   #Extract the interesting parts from the request to build the sample
   headers=request["headers"]
-  body=request["body"]
   request_line=request["request_line"]
   uri_check=re.search('^(\w+)\s(\/[^\?\s]+)\??(.*)\sHTTP\/(?:(?:1|2)\.?(?:1|0)?)$', request_line)
   if not uri_check:
@@ -209,6 +208,7 @@ def add_sample(id, uri, var, content):
       method=uri_check.group(1)
       request_filename=uri_check.group(2)
       args=uri_check.group(3)
+  body=request.setdefault("body", [])
   #Get the transaction section of the audit log to get the target to replay the request
   transaction=find_values('transaction', content)[0]
   #Printing the transaction section for debug purposes
