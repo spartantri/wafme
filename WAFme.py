@@ -42,7 +42,7 @@ rule_parents={'921180':['TX:paramcounter_','921170','ARGS_NAMES']}
 rule_sensitive=['941100','941101','942100']
 
 #rule_ignore list are rules to be ignored and no action will be taken
-rule_ignore=['981405']
+rule_ignore=['981405','952100']
 
 #replacement_element dictionary contains replacements for items that contain variable names eg. tailing MD5
 replacement_element={"REQUEST_COOKIES:wordpress_sec_[a-zA-Z0-9]{10-40}":"REQUEST_COOKIES:/wordpress_sec_*/",
