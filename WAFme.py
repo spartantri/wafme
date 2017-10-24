@@ -27,7 +27,7 @@ result=sample_requests={}
 #min_instances variable is the minimum number of times a match must be added into a global white list
 #skipper variables list is used to add items that exceeded the min_instances threshold
 #skipper holds variables found in multiple different URI
-actions=variables=operators=transforms=skipper=list()
+actions=variables=operators=transforms=skipper=tags=list()
 
 #Number of different URI where a variable must be present to white list it globally
 min_instances=2
@@ -63,7 +63,6 @@ rules_output='REQUEST-903.9003-CUSTOMAPP-EXCLUSION-RULES.conf'
 
 #Webbserver restart command or script to execute to load the rules produced
 restart_command='./apache_restart.sh'
-
 
 
 def largest_id():
@@ -272,7 +271,7 @@ def print_rules():
 
 def rule_skeleton(id, target, match, uri):
     #Generate the rule to whitelist elements from a rule id on a given URI
-    global new_rule_id, increase_rule_id, rule_parents, skipper
+    global new_rule_id, increase_rule_id, rule_parents, skipper, tags
     counter=0
     #Check if rule have a related rule and do the whitelisting on it instead
     if id in rule_parents:
@@ -293,6 +292,8 @@ def rule_skeleton(id, target, match, uri):
     sk_ctlruleremovetargetbyid='SecRule %s "@endsWith %s$" \\\n' % ('REQUEST_FILENAME', uri)
     #Set rule id, phase:2, no transform, nolog, pass
     sk_ctlruleremovetargetbyid_actions=',\\\n    '.join(['"id:%s' % str(new_rule_id), 'phase:2', 't:none', 'nolog', 'pass'])
+    #Adding tags
+    sk_ctlruleremovetargetbyid_actions=',\\\n    '.join(tags)
     #Add 4 heading blank spaces
     sk_ctlruleremovetargetbyid_actions=''.join(['    ', sk_ctlruleremovetargetbyid_actions])
     #sk_ctlruleremovetargetbyid_actions=''.join([sk_ctlruleremovetargetbyid_actions, ',\\\n    '])
@@ -406,6 +407,20 @@ def shrinker():
                 elements.setdefault(i, {})[i]+=1
     return elements
 
+  
+def ruleset_control:
+    #General ruleset control comments and settings
+    global new_rule_id, increase_rule_id, tags
+    import time
+    #Start time
+    start_time=str(time.time()).replace(".","")
+    #Rule set prolog
+    ruleset_vars=''.join(['SecAction ', '"id:%s' % str(new_rule_id), 'phase:2', "setvar:'tx.wafme_debuglevel=0'", 'noauditlog', 'nolog', 'pass'])
+    ruleset_header='SecMarker %s_START' % start_time
+    ruleset_trailer='SecMarker %s_FINISH' % start_time
+    tags.append("wafme_%s" % start_time)
+    return
+
 
 def main():
     global variables, new_rule_id, increase_rule_id
@@ -415,6 +430,7 @@ def main():
     variables = RuleEditor.get_ref_section('Variables', soup)
     #Get starting id to use for rules
     largest_id()
+    ruleset_control()
     print 'Starting rule id will be : %d' % new_rule_id
     print 'Increases to rule id will be : %d' %increase_rule_id
     #Declare audit log file and function to process all events
