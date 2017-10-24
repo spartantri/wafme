@@ -228,12 +228,12 @@ def add_sample(id, uri, var, content):
           host_header_name=host_header.group(1)
   if uri_check:
       if method == "GET" or method == "HEAD":
-          sample=''.join([sample,'requests.get("',headers[host_header_name],request_filename])
+          sample=''.join([sample,'requests.get(https://"',headers[host_header_name],request_filename])
           if len (args)>0:
               sample=''.join([sample,'?',args,'"'])
           else:
               sample=''.join([sample,'"'])
-          sample=''.join([sample,'headers=',str(headers),')'])
+          sample=''.join([sample,',headers=',str(headers),')'])
       print sample
   return
 
