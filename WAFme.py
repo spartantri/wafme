@@ -408,7 +408,7 @@ def shrinker():
     return elements
 
   
-def ruleset_control:
+def ruleset_control():
     #General ruleset control comments and settings
     global new_rule_id, increase_rule_id, tags
     import time
