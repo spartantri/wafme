@@ -1,6 +1,6 @@
 #!//usr/bin/env python
 # -------------------------------------------------------------------------------
-# Name:        ModSecruity audit log extractor
+# Name:        ModSecurity audit log extractor
 # Purpose:     Build ModSecurity rules to whitelist CRS
 #
 # Author:      mleos
