@@ -295,7 +295,8 @@ def rule_skeleton(id, target, match, uri):
     #Set rule id, phase:2, no transform, nolog, pass
     sk_ctlruleremovetargetbyid_actions=',\\\n    '.join(['"id:%s' % str(new_rule_id), 'phase:2', 't:none', 'nolog', 'pass'])
     #Adding tags
-    sk_ctlruleremovetargetbyid_actions=',\\\n    '.join(tags)
+    for tag in tags:
+        sk_ctlruleremovetargetbyid_actions=',\\\n    '.join([sk_ctlruleremovetargetbyid_actions, tag])
     #Add 4 heading blank spaces
     sk_ctlruleremovetargetbyid_actions=''.join(['    ', sk_ctlruleremovetargetbyid_actions])
     #sk_ctlruleremovetargetbyid_actions=''.join([sk_ctlruleremovetargetbyid_actions, ',\\\n    '])
@@ -420,7 +421,7 @@ def ruleset_control():
     ruleset_vars=''.join(['SecAction ', '"id:%s' % str(new_rule_id), 'phase:2', "setvar:'tx.wafme_debuglevel=0'", 'noauditlog', 'nolog', 'pass'])
     ruleset_header='SecMarker %s_START' % start_time
     ruleset_trailer='SecMarker %s_FINISH' % start_time
-    tags.append("wafme_%s" % start_time)
+    tags.append("tag:'wafme_%s'" % start_time)
     return
 
 
