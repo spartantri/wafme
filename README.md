@@ -27,9 +27,11 @@ At this moment WAFme will check R1, R3, R4, R5, R7 and try to limit the element 
 
 # Usage
 - Install WAFme
-```git clone https://github.com/spartantri/wafme.git
+```
+git clone https://github.com/spartantri/wafme.git
 cd wafme
-ln -s /var/log/apache2/modsec_audit.log audit.log```
+ln -s /var/log/apache2/modsec_audit.log audit.log
+```
 
 - Configure the OUTPUT_FILE, audit.log location, exceptions and other global variables and webserver restart script
 - Navigate the web site, use an automated test suite if available and press CTRL+C to generate the ruleset and reload, the output to screen will include a requests python command that can be used to reproduce the exact same request, this is useful as in many cases the ruleset generation is aprocess that would require many iterations as once a rule blocks the request other elements and rules may not be processed yet.
