@@ -12,12 +12,16 @@
 # -------------------------------------------------------------------------------
 
 
-import sys, codecs, argparse, os, requests, wx
+import sys, codecs, argparse, os, requests
 from bs4 import BeautifulSoup as Soup
-localReferenceManual = '/home/wtf/wafme/Reference-Manual.html'
+localReferenceManual = ''.join([os.getcwd(),'/Reference-Manual.html'])
 remoteReferenceManual = 'https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual'
 actions = variables = operators = transforms = list()
 from collections import namedtuple
+try:
+    import wx
+except:
+    next
 
 #parser = argparse.ArgumentParser(description='ModSecurity Rule Builder GUI')
 #parser.add_argument('remote', help='Download remote Reference Manual', action='store_true')
@@ -38,65 +42,69 @@ class RuleEditor(wx.Frame):
 
 
     def InitUI(self):
-        menubar = wx.MenuBar()
-        fileMenu = wx.Menu()
-        fitem = fileMenu.Append(wx.ID_EXIT, 'Quit', 'Quit application')
-        menubar.Append(fileMenu, '&File')
+        try:
+            menubar = wx.MenuBar()
+            fileMenu = wx.Menu()
+            fitem = fileMenu.Append(wx.ID_EXIT, 'Quit', 'Quit application')
+            menubar.Append(fileMenu, '&File')
 
-        self.SetMenuBar(menubar)
-        self.Bind(wx.EVT_MENU, self.OnQuit, fitem)
-        self.SetSize((1580, 880))
-        self.SetTitle('Rule Edifor for ModSecurity WAF')
+            self.SetMenuBar(menubar)
+            self.Bind(wx.EVT_MENU, self.OnQuit, fitem)
+            self.SetSize((1580, 880))
+            self.SetTitle('Rule Edifor for ModSecurity WAF')
 
-        rch = {'c1': 20, 'c2': 60, 'c3': 110, \
-               'r1': 5, 'r2': 20, \
-               'h1': 20}
-        positions = {'id_label': [(rch['c1'], rch['r1'])], \
-                     'id_text': [(rch['c1'], rch['r2']), (80, rch['h1'])], \
-                     'phase_label': [(rch['c3'], rch['r1'])], \
-                     'phase_text': [(rch['c3'], rch['r2']), (120, rch['h1'])]}
+            rch = {'c1': 20, 'c2': 60, 'c3': 110, \
+                   'r1': 5, 'r2': 20, \
+                   'h1': 20}
+            positions = {'id_label': [(rch['c1'], rch['r1'])], \
+                         'id_text': [(rch['c1'], rch['r2']), (80, rch['h1'])], \
+                         'phase_label': [(rch['c3'], rch['r1'])], \
+                         'phase_text': [(rch['c3'], rch['r2']), (120, rch['h1'])]}
 
 
-        panel = wx.Panel(self, -1)
+            panel = wx.Panel(self, -1)
 
-        hbox = wx.BoxSizer(wx.HORIZONTAL)
-        #wx.FlexGridSizer(int rows=1, int cols=0, int vgap=0, int hgap=0)
-        fgs = wx.FlexGridSizer(20, 12, 9, 25)
+            hbox = wx.BoxSizer(wx.HORIZONTAL)
+            #wx.FlexGridSizer(int rows=1, int cols=0, int vgap=0, int hgap=0)
+            fgs = wx.FlexGridSizer(20, 12, 9, 25)
 
-        id_label = wx.StaticText(panel, label="Rule id", pos=positions[self[0]])
-        id_text = wx.TextCtrl(panel, pos=positions[self[0]])
+            id_label = wx.StaticText(panel, label="Rule id", pos=positions[self[0]])
+            id_text = wx.TextCtrl(panel, pos=positions[self[0]])
 
-        phase_label = wx.StaticText(panel, label="Phase", pos=positions[self[0]])
-        phase_combo = wx.ComboBox(panel, pos=positions[self[0]])
+            phase_label = wx.StaticText(panel, label="Phase", pos=positions[self[0]])
+            phase_combo = wx.ComboBox(panel, pos=positions[self[0]])
 
-        selector_label = wx.StaticText(panel, label="Selector")
-        selector_combo = wx.ComboBox(panel)
+            selector_label = wx.StaticText(panel, label="Selector")
+            selector_combo = wx.ComboBox(panel)
 
-        operator_label = wx.StaticText(panel, label="Operator")
-        operator_combo = wx.ComboBox(panel)
+            operator_label = wx.StaticText(panel, label="Operator")
+            operator_combo = wx.ComboBox(panel)
 
-        pattern_label = wx.StaticText(panel, label="Rule id")
-        pattern_text = wx.TextCtrl(panel)
+            pattern_label = wx.StaticText(panel, label="Rule id")
+            pattern_text = wx.TextCtrl(panel)
 
-        location_label = wx.StaticText(panel, label="Location")
-        location_combo = wx.ComboBox(panel)
+            location_label = wx.StaticText(panel, label="Location")
+            location_combo = wx.ComboBox(panel)
 
-        #fgs.AddMany([(id_label), (id_text, 1),
-        #             (phase_label), (phase_combo),
-        #             (selector_label), (selector_combo, wx.EXPAND),
-        #             (operator_label), (operator_combo, wx.EXPAND),
-        #             (pattern_label), (pattern_text, wx.EXPAND),
-        #             (location_label), (location_combo, wx.EXPAND)])
-        #fgs.AddGrowableRow(2,1)
-        #fgs.AddGrowableCol(1,1)
+            #fgs.AddMany([(id_label), (id_text, 1),
+            #             (phase_label), (phase_combo),
+            #             (selector_label), (selector_combo, wx.EXPAND),
+            #             (operator_label), (operator_combo, wx.EXPAND),
+            #             (pattern_label), (pattern_text, wx.EXPAND),
+            #             (location_label), (location_combo, wx.EXPAND)])
+            #fgs.AddGrowableRow(2,1)
+            #fgs.AddGrowableCol(1,1)
 
-        #hbox.Add(fgs, proportion=1, flag=wx.ALL|wx.EXPAND, border=15)
-        #panel.SetSizer(hbox)
-
+            #hbox.Add(fgs, proportion=1, flag=wx.ALL|wx.EXPAND, border=15)
+            #panel.SetSizer(hbox)
+        except:
+            print "No GUI"
+            next
 
 
     def OnQuit(self, e):
         self.Close()
+
 
 def get_ref_manual():
     global localReferenceManual, remoteReferenceManual, args

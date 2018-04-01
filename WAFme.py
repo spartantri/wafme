@@ -15,8 +15,26 @@ import json, re, signal, os
 import RuleEditor, tail
 from collections import namedtuple
 
+#CWD
+cwd=os.getcwd()
+#Starting rule id to use if no rule is found
+new_rule_id=37173
+#Keep initial rule for computing stats
+initial_rule_id=new_rule_id
 
-#result dictionary keep track of identified rule ids and matching elements, keys are "id,uri" 
+#Rule id increases
+increase_rule_id=10
+
+#Audit log file to tail
+audit_log='/var/log/apache2/modsec_audit.log'
+
+#Rule set output file
+rules_output=''.join([cwd,'/REQUEST-903.9003-CUSTOMAPP-EXCLUSION-RULES.conf'])
+
+#Webbserver restart command or script to execute to load the rules produced
+restart_command=''.join([cwd,'/apache_restart.sh'])
+
+#result dictionary keep track of identified rule ids and matching elements, keys are "id,uri"
 #result contents are lists of matched variables and the hit count
 result=sample_requests={}
 
@@ -30,7 +48,7 @@ result=sample_requests={}
 actions=variables=operators=transforms=skipper=tags=list()
 
 #Number of different URI where a variable must be present to white list it globally
-min_instances=2
+min_instances=10
 
 #rule_parents dictionary is used to whitelist rules that are derivated from another one
 #rule_parents keys are the derivated rule id and the content list have the regex of the derivated rule match,
@@ -48,39 +66,26 @@ rule_ignore=['981405','952100']
 replacement_element={"REQUEST_COOKIES:wordpress_sec_[a-zA-Z0-9]{10-40}":"REQUEST_COOKIES:/wordpress_sec_*/",
                     "REQUEST_COOKIES:wordpress_logged_in_[a-zA-Z0-9]{10-40}":"REQUEST_COOKIES:/wordpress_logged_in_*/"}
 
-#Starting rule id to use if no rule is found
-new_rule_id=37173
-initial_rule_id=new_rule_id
-
-#Rule id increases
-increase_rule_id=10
-
-#Audit log file to tail
-audit_log='audit.log'
-
-#Rule set output file
-rules_output='REQUEST-903.9003-CUSTOMAPP-EXCLUSION-RULES.conf'
-
-#Webbserver restart command or script to execute to load the rules produced
-restart_command='./apache_restart.sh'
-
 
 def largest_id():
     #Find the max rule id number in the ruleset file
     global new_rule_id, increase_rule_id, rules_output
     val = max_num = new_rule_id
-    #Go through the ruleset file and get the ids and return the max value + 1 to use as next rule id 
-    with open(rules_output, 'r') as data:
-        for line in data.readlines(): # read the lines as a generator to be nice to my memory
-            try:
-                id=re.search('id:\'?(\d+)\'?',line)
-                if id:
-                    val = int(id.group(1))
-                del id
-            except ValueError: # just incase the text file is not formatted like your example
-                val = 0
-            if val > max_num: # logic
-                max_num = val
+    #Go through the ruleset file and get the ids and return the max value + 1 to use as next rule id
+    try:
+        with open(rules_output, 'r') as data:
+            for line in data.readlines(): # read the lines as a generator to be nice to my memory
+                try:
+                    id=re.search('id:\'?(\d+)\'?',line)
+                    if id:
+                        val = int(id.group(1))
+                    del id
+                except ValueError:
+                    val = 0
+                if val > max_num:
+                    max_num = val
+    except:
+        max_num = 0
     if new_rule_id <= max_num:
         new_rule_id = max_num+increase_rule_id
     return
@@ -159,17 +164,30 @@ def sigint_handler(signum, frame):
     print_rules()
     #If there are no changes then exit, otherwise start over
     if new_rule_id==initial_rule_id:
+        print 'No new rules generated...exiting'
         exit(0)
     else:
         initial_rule_id=new_rule_id
-        #Restart the webserver process to load the new configuration
-        retvalue = os.system(restart_command)
-        #Print output from restart command
-        print retvalue
-        #Start over
-        result=sample_requests={}
-        initial_rule_id=new_rule_id
-        main()
+        resp = confirm('Do you want to restart the Web server service and continue analyzing the log', True)
+        if resp:
+            #Restart the webserver process to load the new configuration
+            retvalue = os.system(restart_command)
+            #Print output from restart command
+            print retvalue
+            #Start over
+            result=sample_requests={}
+            initial_rule_id=new_rule_id
+            main()
+        else:
+            resp = confirm('Do you want to restart the Web server service before exiting', True)
+            if resp:
+                # Restart the webserver process to load the new configuration
+                retvalue = os.system(restart_command)
+                # Print output from restart command
+                print
+                retvalue
+            else:
+                exit(0)
 
  
 signal.signal(signal.SIGINT, sigint_handler)
@@ -318,7 +336,7 @@ def rule_skeleton(id, target, match, uri):
     #If rule have no ctl (made it to the global whitelist), print the rule and save it to the rule set file
     if counter>0:
         print rule
-        with open(rules_output, 'a') as file:
+        with open(rules_output, 'a+') as file:
             file.write(rule)
         #Increase the rule id for next rule
         new_rule_id+=increase_rule_id
@@ -384,7 +402,7 @@ def rule_globals():
                 if new_item in rule_sensitive:
                     print "#Warning whitelisting sensitive rule! - %s" % item
             #Open the rule set file and check if the item to be whitelisted is already presend
-            with open(rules_output, 'r') as file:
+            with open(rules_output, 'r+') as file:
                 ruleset=file.read()
                 #If the item is not already listed add it, otherwise ignore it
                 if rule not in ruleset:
@@ -392,7 +410,7 @@ def rule_globals():
                     rules=''.join([rules, rule])
     #If the rules have something else other than the inital comment, save it
     if rules != "#Site wide whitelisted elements\n":
-        with open(rules_output, 'a') as file:
+        with open(rules_output, 'a+') as file:
             file.write(rules)
         print rules
     return
@@ -425,9 +443,66 @@ def ruleset_control():
     tags.append("tag:'wafme_%s'" % start_time)
     return
 
+def validate_files(files):
+    for access_type in files:
+        for item in files[access_type]:
+            print 'Testing file access %s' % item
+            if os.access(item, os.F_OK):
+                if os.access(item, access_type):
+                    print 'File %s exists and permissions are ok' % item
+                else:
+                    print 'File %s permissions are wrong' % item
+                    print oct(os.stat(item).st_mode & 0777)
+            else:
+                print "File %s does not exist" % item
+    os.system(''.join(['touch', ' ', rules_output]))
+    return
+
+
+def confirm(prompt=None, resp=False):
+    """ActiveState receipe, prompts for yes or no response from the user. Returns True for yes and
+    False for no.
+
+    'resp' should be set to the default value assumed by the caller when
+    user simply types ENTER.
+
+    >>> confirm(prompt='Create Directory?', resp=True)
+    Create Directory? [y]|n:
+    True
+    >>> confirm(prompt='Create Directory?', resp=False)
+    Create Directory? [n]|y:
+    False
+    >>> confirm(prompt='Create Directory?', resp=False)
+    Create Directory? [n]|y: y
+    True"""
+
+    if prompt is None:
+        prompt = 'Confirm'
+
+    if resp:
+        prompt = '%s [%s]|%s: ' % (prompt, 'y', 'n')
+    else:
+        prompt = '%s [%s]|%s: ' % (prompt, 'n', 'y')
+
+    while True:
+        ans = raw_input(prompt)
+        if not ans:
+            return resp
+        if ans not in ['y', 'Y', 'n', 'N']:
+            print
+            'please enter y or n.'
+            continue
+        if ans == 'y' or ans == 'Y':
+            return True
+        if ans == 'n' or ans == 'N':
+            return False
+
 
 def main():
-    global variables, new_rule_id, increase_rule_id
+    global variables, new_rule_id, increase_rule_id, audit_log, rules_output
+    #new_rule_id,increase_rule_id, audit_log, rules_output, restart_command, min_instances, rule_sensitive, rule_ignore
+    files={os.R_OK:[audit_log], os.W_OK:[rules_output], os.X_OK:[restart_command]}
+    validate_files(files)
     #Read the modsecurity reference manual
     soup = RuleEditor.get_ref_manual()
     #Read all the variables into variables dictionary
@@ -436,7 +511,7 @@ def main():
     largest_id()
     ruleset_control()
     print 'Starting rule id will be : %d' % new_rule_id
-    print 'Increases to rule id will be : %d' %increase_rule_id
+    print 'Increases to rule id will be : %d' % increase_rule_id
     #Declare audit log file and function to process all events
     t=tail.Tail(audit_log)
     t.register_callback(extractor)
