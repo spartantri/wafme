@@ -15,7 +15,10 @@
 import sys, codecs, argparse, os, requests
 from bs4 import BeautifulSoup as Soup
 localReferenceManual = ''.join([os.getcwd(),'/Reference-Manual.html'])
-remoteReferenceManual = 'https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual'
+#Legacy https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual
+#ModSec 2 https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual-%28v2.x%29
+#ModSec 3 https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual-%28v3.x%29
+remoteReferenceManual = 'https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual-%28v2.x%29'
 actions = variables = operators = transforms = list()
 from collections import namedtuple
 try:
