@@ -1,4 +1,4 @@
-# wafme
+# WAFme
 ModSecurity rule editor and log analysis
 
 The WAFme component is intended for tailing live audit logs and generate the rules and exceptions to prevent ModSecurity from blocking the regular website/webapp usability.
@@ -31,6 +31,7 @@ At this moment WAFme will check R1, R3, R4, R5, R7 and try to limit the element 
 git clone https://github.com/spartantri/wafme.git
 cd wafme
 ln -s /var/log/apache2/modsec_audit.log audit.log
+touch REQUEST-903.9003-CUSTOMAPP-EXCLUSION-RULES.conf
 ```
 
 - Configure the OUTPUT_FILE, audit.log location, exceptions and other global variables and webserver restart script
