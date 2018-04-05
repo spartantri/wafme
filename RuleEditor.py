@@ -33,8 +33,8 @@ args = 'local'
 #print args
 
 
-
-class RuleEditor(wx.Frame):
+try:
+  class RuleEditor(wx.Frame):
 
     def __init__(self, *args, **kwargs):
         super(RuleEditor, self).__init__(*args, **kwargs)
@@ -104,9 +104,12 @@ class RuleEditor(wx.Frame):
             print "No GUI"
             next
 
-
     def OnQuit(self, e):
         self.Close()
+
+except:
+  print "No GUI"
+  next
 
 
 def get_ref_manual():
