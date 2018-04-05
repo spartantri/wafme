@@ -26,7 +26,7 @@ initial_rule_id=new_rule_id
 increase_rule_id=10
 
 #Audit log file to tail
-audit_log='/var/log/apache2/modsec_audit.log'
+audit_log=''.join([cwd,'/audit.log'])
 
 #Rule set output file
 rules_output=''.join([cwd,'/REQUEST-903.9003-CUSTOMAPP-EXCLUSION-RULES.conf'])
